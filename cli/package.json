@@ -15,8 +15,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/SibilSoren/setu-js.git",
+    "url": "https://github.com/SibilSoren/yantr-js.git",
     "directory": "cli"
+  },
+  "homepage": "https://github.com/SibilSoren/yantr-js#readme",
+  "bugs": {
+    "url": "https://github.com/SibilSoren/yantr-js/issues"
   },
   "keywords": [
     "cli",
