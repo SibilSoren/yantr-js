@@ -1,15 +1,41 @@
-# Yantr-js 🪛
+<p align="center">
+  <img src="docs/public/logo.png" alt="YantrJS Logo" width="120" height="120" />
+</p>
 
-> A "Shadcn for Backend" CLI that gives you **ownership** of production-ready Express.js code.
+<h1 align="center">YantrJS</h1>
 
-[![npm version](https://img.shields.io/npm/v/yantr-js.svg)](https://www.npmjs.com/package/yantr-js)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <strong>The "Shadcn for Backend" CLI</strong><br/>
+  Production-grade Express.js scaffolding with code you own, not a library you fight.
+</p>
 
-## Philosophy
+<p align="center">
+  <a href="https://www.npmjs.com/package/yantr-js"><img src="https://img.shields.io/npm/v/yantr-js.svg" alt="npm version" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://yantrjs.vercel.app/docs"><img src="https://img.shields.io/badge/docs-yantrjs.vercel.app-blue" alt="Documentation" /></a>
+</p>
+
+<p align="center">
+  <a href="https://yantrjs.vercel.app/docs">📖 Documentation</a> •
+  <a href="#quick-start">🚀 Quick Start</a> •
+  <a href="#components">📦 Components</a> •
+  <a href="#contributing">🤝 Contributing</a>
+</p>
+
+---
+
+## ✨ Philosophy
 
 **Ownership over abstraction.** No hidden dependencies for core logic. Just clean, customizable TypeScript code that you own and can modify.
 
-## Quick Start
+- 🎯 **You own the code** — Injected directly into your project
+- 🔒 **Type-safe** — Built with TypeScript and Zod
+- ⚡ **Production-ready** — Battle-tested patterns
+- 🔌 **Zero lock-in** — No framework dependencies
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 # In your existing Express.js project
@@ -17,16 +43,17 @@ npx yantr-js init
 
 # Add components
 npx yantr-js add auth
-npx yantr-js add logger
 npx yantr-js add database
-npx yantr-js add security
 
 # Generate routes
 npx yantr-js generate route users
-npx yantr-js generate route products
 ```
 
-## Installation
+> 📖 **Full documentation:** [yantrjs.vercel.app/docs](https://yantrjs.vercel.app/docs)
+
+---
+
+## 📦 Installation
 
 ```bash
 # Using npm
@@ -45,21 +72,18 @@ bun add -g yantr-js
 npx yantr-js <command>
 ```
 
-## Commands
+---
+
+## 🛠️ Commands
 
 ### `yantr init`
 
-Initialize Yantr in your project. Creates `yantr.json` and base templates.
+Initialize YantrJS in your project. Creates `yantr.json` and base templates.
 
 ```bash
 yantr init          # Interactive mode
 yantr init --yes    # Use defaults
 ```
-
-**Creates:**
-- `yantr.json` - Configuration file
-- `lib/yantr/error-handler.ts` - Global error handling
-- `lib/yantr/zod-middleware.ts` - Request validation
 
 ### `yantr add <component>`
 
@@ -72,6 +96,19 @@ yantr add database   # Prisma setup
 yantr add security   # Rate limiting + Helmet
 ```
 
+### `yantr generate route <name>`
+
+Scaffold a complete CRUD route with controller and service.
+
+```bash
+yantr generate route users
+yantr g route orders  # 'g' is an alias
+```
+
+---
+
+## 📦 Components
+
 | Component | Description | Dependencies |
 |-----------|-------------|--------------|
 | `auth` | JWT with refresh tokens, cookie support | jsonwebtoken, bcryptjs, cookie-parser |
@@ -79,22 +116,9 @@ yantr add security   # Rate limiting + Helmet
 | `database` | Prisma ORM with singleton & utilities | @prisma/client |
 | `security` | Rate limiting + Helmet headers | helmet, express-rate-limit |
 
-### `yantr generate route <name>`
+---
 
-Scaffold a complete CRUD route with controller and service.
-
-```bash
-yantr generate route users
-yantr generate route products
-yantr g route orders  # 'g' is an alias
-```
-
-**Creates:**
-- `routes/<name>.routes.ts` - Express router with CRUD endpoints
-- `controllers/<name>.controller.ts` - Request handlers with validation
-- `services/<name>.service.ts` - Business logic template
-
-## Example Usage
+## 💡 Example Usage
 
 After running `yantr init` and `yantr add auth`:
 
@@ -113,7 +137,9 @@ app.use(errorHandler);
 app.listen(3000);
 ```
 
-## Configuration
+---
+
+## ⚙️ Configuration
 
 `yantr.json` stores your project configuration:
 
@@ -127,22 +153,31 @@ app.listen(3000);
 }
 ```
 
-## Package Manager Support
+---
 
-Yantr-js automatically detects and uses your preferred package manager:
+## 📦 Package Manager Support
+
+YantrJS automatically detects and uses your preferred package manager:
+
 - npm
 - pnpm
 - yarn
 - bun
 
-## Contributing
+---
+
+## 🤝 Contributing
 
 Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md).
 
-## License
+---
 
-MIT © [SibilSoren](https://github.com/SibilSoren/yantr-js)
+## 📄 License
+
+MIT © [SibilSoren](https://github.com/SibilSoren)
 
 ---
 
-Built with ❤️ by the Yantr-js community
+<p align="center">
+  Built with ❤️ by the YantrJS community
+</p>
