@@ -311,7 +311,7 @@ export function validate(schemas: ValidateOptions) {
           const errors = formatZodErrors(result.error);
 
           for (const [key, messages] of Object.entries(errors)) {
-            const prefixedKey = \\\`\\\${location}.\\\${key}\\\`;
+            const prefixedKey = \`\${location}.\${key}\`;
             allErrors[prefixedKey] = messages;
           }
         } else {
@@ -363,23 +363,23 @@ export { z };
     spinner.stop('Dependencies installed');
   } catch (error) {
     spinner.stop('Could not install dependencies automatically');
-    p.log.warning(`Please run: \${chalk.cyan(\`\${packageManager} add zod\`)}`);
+    p.log.warning(`Please run: ${chalk.cyan(`${packageManager} add zod`)}`);
   }
 
   // Summary
   p.note(
-    \`\${chalk.green('✓')} yantr.json created
-\${chalk.green('✓')} \${templatesDir}/error-handler.ts
-\${chalk.green('✓')} \${templatesDir}/zod-middleware.ts\`,
+    `${chalk.green('✓')} yantr.json created
+${chalk.green('✓')} ${templatesDir}/error-handler.ts
+${chalk.green('✓')} ${templatesDir}/zod-middleware.ts`,
     'Files created'
   );
 
   p.log.info('Next steps:');
-  p.log.step(1, \`Add error handler to your Express app:\`);
-  console.log(chalk.gray(\`   import { errorHandler } from '\${templatesDir}/error-handler';\`));
-  console.log(chalk.gray(\`   app.use(errorHandler);\`));
-  p.log.step(2, \`Add components: \${chalk.cyan('yantr add auth')}\`);
-  p.log.step(3, \`Generate routes: \${chalk.cyan('yantr generate route users')}\`);
+  p.log.step(1, `Add error handler to your Express app:`);
+  console.log(chalk.gray(`   import { errorHandler } from '${templatesDir}/error-handler';`));
+  console.log(chalk.gray(`   app.use(errorHandler);`));
+  p.log.step(2, `Add components: ${chalk.cyan('yantr add auth')}`);
+  p.log.step(3, `Generate routes: ${chalk.cyan('yantr generate route users')}`);
 
   p.outro(chalk.green('Yantr initialized successfully! 🪛'));
 }

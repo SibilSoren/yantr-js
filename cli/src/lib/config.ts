@@ -63,3 +63,26 @@ export function createConfig(
     installedComponents: ['base'],
   };
 }
+
+/**
+ * Add a component to the installed list in yantr.json
+ */
+export async function addInstalledComponent(cwd: string, componentName: string): Promise<void> {
+  const config = await readConfig(cwd);
+  if (!config.installedComponents.includes(componentName)) {
+    config.installedComponents.push(componentName);
+    await writeConfig(cwd, config);
+  }
+}
+
+/**
+ * Check if a component is already installed
+ */
+export async function isComponentInstalled(cwd: string, componentName: string): Promise<boolean> {
+  try {
+    const config = await readConfig(cwd);
+    return config.installedComponents.includes(componentName);
+  } catch {
+    return false;
+  }
+}
