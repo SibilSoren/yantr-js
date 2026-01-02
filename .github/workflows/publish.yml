@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+          cache-dependency-path: cli/package-lock.json
       
       - name: Install dependencies
         run: npm install
@@ -28,11 +30,8 @@ jobs:
         run: npm run build
         working-directory: cli
       
-      # Option 1: Using NPM_TOKEN (granular token)
-      # Create token via: npm token create
-      # Add as NPM_TOKEN secret in GitHub
       - name: Publish to npm
-        run: npm publish --access public --provenance
+        run: npm publish --access public
         working-directory: cli
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
