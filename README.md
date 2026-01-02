@@ -119,7 +119,7 @@ app.listen(3000);
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/SibilSoren/setu-js/main/cli/schema.json",
+  "$schema": "https://raw.githubusercontent.com/SibilSoren/yantr-js/main/cli/schema.json",
   "projectName": "my-api",
   "srcDir": "./src",
   "packageManager": "pnpm",
@@ -129,7 +129,7 @@ app.listen(3000);
 
 ## Package Manager Support
 
-Setu-js automatically detects and uses your preferred package manager:
+Yantr-js automatically detects and uses your preferred package manager:
 - npm
 - pnpm
 - yarn
@@ -145,4 +145,4 @@ MIT © [SibilSoren](https://github.com/SibilSoren)
 
 ---
 
-Built with ❤️ by the Setu-js community
+Built with ❤️ by the Yantr-js community
