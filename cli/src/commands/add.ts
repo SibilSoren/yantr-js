@@ -21,7 +21,7 @@ interface AddOptions {
 
 export async function add(componentName: string, options: AddOptions) {
   console.clear();
-  p.intro(chalk.bgCyan.black(\` 🪛 yantr add \${componentName} \`));
+  p.intro(chalk.bgCyan.black(` 🪛 yantr add ${componentName} `));
 
   try {
     const cwd = process.cwd();
@@ -45,8 +45,8 @@ export async function add(componentName: string, options: AddOptions) {
     
     if (!availableComponents.includes(componentName)) {
       spinner.stop('Component not found');
-      p.log.error(\`Unknown component: \${chalk.red(componentName)}\`);
-      p.log.info(\`Available components: \${chalk.cyan(availableComponents.join(', '))}\`);
+      p.log.error(`Unknown component: ${chalk.red(componentName)}`);
+      p.log.info(`Available components: ${chalk.cyan(availableComponents.join(', '))}`);
       p.outro(chalk.red('Add cancelled.'));
       process.exit(1);
     }
@@ -58,7 +58,7 @@ export async function add(componentName: string, options: AddOptions) {
       spinner.stop('Component already installed');
       
       const overwrite = await p.confirm({
-        message: \`\${componentName} is already installed. Overwrite?\`,
+        message: `${componentName} is already installed. Overwrite?`,
         initialValue: false,
       });
 
@@ -69,7 +69,7 @@ export async function add(componentName: string, options: AddOptions) {
     }
 
     // Step 5: Fetch component metadata and files
-    spinner.start(\`Downloading \${componentName}...\`);
+    spinner.start(`Downloading ${componentName}...`);
     
     const component = await getComponent(componentName);
     
@@ -80,7 +80,7 @@ export async function add(componentName: string, options: AddOptions) {
     }
 
     const files = await fetchComponentFiles(componentName);
-    spinner.stop(\`Downloaded \${files.size} files\`);
+    spinner.stop(`Downloaded ${files.size} files`);
 
     // Step 6: Write files to project
     spinner.start('Installing files...');
@@ -94,7 +94,7 @@ export async function add(componentName: string, options: AddOptions) {
       
       if ((await fileExists(targetPath)) && !options.overwrite && !alreadyInstalled) {
         const shouldOverwrite = await p.confirm({
-          message: \`File \${fileName} already exists. Overwrite?\`,
+          message: `File ${fileName} already exists. Overwrite?`,
           initialValue: false,
         });
 
@@ -138,12 +138,12 @@ export async function add(componentName: string, options: AddOptions) {
         
         if (component.dependencies.length > 0) {
           p.log.warning(
-            \`Please run: \${chalk.cyan(\`\${config.packageManager} add \${component.dependencies.join(' ')}\`)}\`
+            `Please run: ${chalk.cyan(`${config.packageManager} add ${component.dependencies.join(' ')}`)}`
           );
         }
         if (component.devDependencies.length > 0) {
           p.log.warning(
-            \`Please run: \${chalk.cyan(\`\${config.packageManager} add -D \${component.devDependencies.join(' ')}\`)}\`
+            `Please run: ${chalk.cyan(`${config.packageManager} add -D ${component.devDependencies.join(' ')}`)}`
           );
         }
       }
@@ -153,44 +153,44 @@ export async function add(componentName: string, options: AddOptions) {
     await addInstalledComponent(cwd, componentName);
 
     // Summary
-    const filesNote = installedFiles.map(f => \`\${chalk.green('✓')} \${f}\`).join('\\n');
+    const filesNote = installedFiles.map(f => `${chalk.green('✓')} ${f}`).join('\\n');
     
     p.note(filesNote, 'Files created');
 
     if (component.dependencies.length > 0) {
-      p.log.info(\`Dependencies: \${chalk.cyan(component.dependencies.join(', '))}\`);
+      p.log.info(`Dependencies: ${chalk.cyan(component.dependencies.join(', '))}`);
     }
 
     // Component-specific usage hints
     const usageHints: Record<string, string[]> = {
       auth: [
-        \`Import auth routes: \${chalk.gray(\`import authRoutes from '\${config.srcDir}/lib/yantr/auth/auth.routes';\`)}\`,
-        \`Add to app: \${chalk.gray('app.use("/api/auth", authRoutes);')}\`,
+        `Import auth routes: ${chalk.gray(`import authRoutes from '${config.srcDir}/lib/yantr/auth/auth.routes';`)}`,
+        `Add to app: ${chalk.gray('app.use("/api/auth", authRoutes);')}`,
       ],
       logger: [
-        \`Import logger: \${chalk.gray(\`import { logger } from '\${config.srcDir}/lib/yantr/logger/logger';\`)}\`,
-        \`Use HTTP logging: \${chalk.gray('app.use(httpLogger);')}\`,
+        `Import logger: ${chalk.gray(`import { logger } from '${config.srcDir}/lib/yantr/logger/logger';`)}`,
+        `Use HTTP logging: ${chalk.gray('app.use(httpLogger);')}`,
       ],
       database: [
-        \`Import prisma: \${chalk.gray(\`import { prisma } from '\${config.srcDir}/lib/yantr/database/prisma';\`)}\`,
-        \`Initialize: \${chalk.gray('npx prisma init')}\`,
+        `Import prisma: ${chalk.gray(`import { prisma } from '${config.srcDir}/lib/yantr/database/prisma';`)}`,
+        `Initialize: ${chalk.gray('npx prisma init')}`,
       ],
       security: [
-        \`Import security: \${chalk.gray(\`import { rateLimiter, helmetConfig } from '\${config.srcDir}/lib/yantr/security';\`)}\`,
-        \`Add to app: \${chalk.gray('app.use(helmetConfig); app.use(rateLimiter);')}\`,
+        `Import security: ${chalk.gray(`import { rateLimiter, helmetConfig } from '${config.srcDir}/lib/yantr/security';`)}`,
+        `Add to app: ${chalk.gray('app.use(helmetConfig); app.use(rateLimiter);')}`,
       ],
     };
 
     if (usageHints[componentName]) {
       p.log.info('Usage:');
       usageHints[componentName].forEach((hint, i) => {
-        console.log(\`  \${i + 1}. \${hint}\`);
+        console.log(`  ${i + 1}. ${hint}`);
       });
     }
 
-    p.outro(chalk.green(\`\${component.name} added successfully! 🪛\`));
+    p.outro(chalk.green(`${component.name} added successfully! 🪛`));
   } catch (error) {
-    p.log.error(\`Failed: \${error instanceof Error ? error.message : String(error)}\`);
+    p.log.error(`Failed: ${error instanceof Error ? error.message : String(error)}`);
     console.error(error);
     process.exit(1);
   }

@@ -25,14 +25,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
       
+      - name: Verify CLI directory
+        run: ls -la cli
+      
       - name: Build CLI
-        run: pnpm --filter cli build
+        run: pnpm --dir cli run build
       
       - name: Debug build output
         run: ls -R cli/dist
       
       - name: Run tests
-        run: pnpm --filter cli test
+        run: pnpm --dir cli run test
         continue-on-error: true
       
       - name: Test CLI help

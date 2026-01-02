@@ -28,9 +28,9 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       
       - name: Build
-        run: pnpm --filter cli build
+        run: pnpm --dir cli run build
       
       - name: Publish to npm
-        run: pnpm --filter cli publish --access public --no-git-checks
+        run: pnpm --dir cli publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
