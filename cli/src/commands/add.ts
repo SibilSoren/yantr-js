@@ -21,6 +21,8 @@ import { writeFile, fileExists } from '../utils/fs.js';
 
 interface AddOptions {
   overwrite?: boolean;
+  type?: string;
+  orm?: string;
 }
 
 /**
@@ -49,44 +51,80 @@ async function handleDatabaseAdd(
   config: Awaited<ReturnType<typeof readConfig>>,
   options: AddOptions
 ): Promise<void> {
-  // Check if database is already configured
-  if (config.database && !options.overwrite) {
-    const overwrite = await p.confirm({
-      message: `Database already configured (${config.database.orm}). Reconfigure?`,
-      initialValue: false,
+  let dbType: DatabaseType;
+  let orm: OrmType;
+
+  // Use flags if provided
+  if (options.type && options.orm) {
+    const validDbTypes = ['postgres', 'mongodb'];
+    const validOrms = ['prisma', 'drizzle', 'mongoose'];
+    
+    if (!validDbTypes.includes(options.type)) {
+      p.log.error(`Invalid database type: ${options.type}. Use: postgres or mongodb`);
+      process.exit(1);
+    }
+    if (!validOrms.includes(options.orm)) {
+      p.log.error(`Invalid ORM: ${options.orm}. Use: prisma, drizzle, or mongoose`);
+      process.exit(1);
+    }
+    
+    // Validate ORM matches database type
+    if (options.type === 'postgres' && options.orm === 'mongoose') {
+      p.log.error('Mongoose can only be used with MongoDB');
+      process.exit(1);
+    }
+    if (options.type === 'mongodb' && (options.orm === 'prisma' || options.orm === 'drizzle')) {
+      p.log.error(`${options.orm} can only be used with PostgreSQL`);
+      process.exit(1);
+    }
+    
+    dbType = options.type as DatabaseType;
+    orm = options.orm as OrmType;
+  } else {
+    // Interactive mode
+    // Check if database is already configured
+    if (config.database && !options.overwrite) {
+      const overwrite = await p.confirm({
+        message: `Database already configured (${config.database.orm}). Reconfigure?`,
+        initialValue: false,
+      });
+
+      if (p.isCancel(overwrite) || !overwrite) {
+        p.outro(chalk.yellow('Add cancelled.'));
+        process.exit(0);
+      }
+    }
+
+    // Step 1: Select database type
+    const selectedDbType = await p.select({
+      message: 'Select your database:',
+      options: DATABASE_OPTIONS.map(opt => ({ value: opt.value, label: opt.label })),
     });
 
-    if (p.isCancel(overwrite) || !overwrite) {
+    if (p.isCancel(selectedDbType)) {
       p.outro(chalk.yellow('Add cancelled.'));
       process.exit(0);
     }
+    
+    dbType = selectedDbType as DatabaseType;
+
+    // Step 2: Select ORM
+    const ormOptions = ORM_OPTIONS[dbType];
+    const selectedOrm = await p.select({
+      message: 'Select your ORM:',
+      initialValue: ormOptions.find(o => o.recommended)?.value || ormOptions[0].value,
+      options: ormOptions.map(opt => ({ value: opt.value, label: opt.label })),
+    });
+
+    if (p.isCancel(selectedOrm)) {
+      p.outro(chalk.yellow('Add cancelled.'));
+      process.exit(0);
+    }
+    
+    orm = selectedOrm as OrmType;
   }
 
-  // Step 1: Select database type
-  const dbType = await p.select({
-    message: 'Select your database:',
-    options: DATABASE_OPTIONS.map(opt => ({ value: opt.value, label: opt.label })),
-  });
-
-  if (p.isCancel(dbType)) {
-    p.outro(chalk.yellow('Add cancelled.'));
-    process.exit(0);
-  }
-
-  // Step 2: Select ORM
-  const ormOptions = ORM_OPTIONS[dbType as DatabaseType];
-  const orm = await p.select({
-    message: 'Select your ORM:',
-    initialValue: ormOptions.find(o => o.recommended)?.value || ormOptions[0].value,
-    options: ormOptions.map(opt => ({ value: opt.value, label: opt.label })),
-  });
-
-  if (p.isCancel(orm)) {
-    p.outro(chalk.yellow('Add cancelled.'));
-    process.exit(0);
-  }
-
-  // Step 3: Fetch and install templates
+  // Fetch and install templates
   const spinner = p.spinner();
   spinner.start('Setting up database...');
 

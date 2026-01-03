@@ -72,7 +72,8 @@ export async function hasSrcDirectory(cwd: string): Promise<boolean> {
 export async function createPackageJson(
   cwd: string, 
   name: string,
-  framework?: 'express' | 'hono' | 'fastify'
+  framework?: 'express' | 'hono' | 'fastify',
+  runtime: 'node' | 'bun' = 'node'
 ): Promise<void> {
   const frameworkDeps: Record<string, string> = {};
   
@@ -84,16 +85,23 @@ export async function createPackageJson(
     frameworkDeps['fastify'] = '^4.0.0';
   }
 
+  const scripts = runtime === 'bun' 
+    ? {
+        dev: 'bun --hot src/index.ts',
+        start: 'bun src/index.ts',
+      }
+    : {
+        dev: 'ts-node src/index.ts',
+        build: 'tsc',
+        start: 'node dist/index.js',
+      };
+
   const packageJson = {
     name: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
     version: '1.0.0',
     description: '',
-    main: 'index.js',
-    scripts: {
-      dev: 'ts-node src/index.ts',
-      build: 'tsc',
-      start: 'node dist/index.js',
-    },
+    main: runtime === 'bun' ? 'src/index.ts' : 'index.js',
+    scripts,
     keywords: [],
     author: '',
     license: 'ISC',

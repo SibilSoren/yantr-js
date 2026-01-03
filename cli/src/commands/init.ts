@@ -29,6 +29,8 @@ import {
 
 interface InitOptions {
   yes?: boolean;
+  framework?: string;
+  runtime?: string;
 }
 
 export async function init(options: InitOptions) {
@@ -45,12 +47,18 @@ export async function init(options: InitOptions) {
     p.log.warning('No package.json found in current directory.');
     
     // Ask for framework first when creating new project
-    if (options.yes) {
-      // Default to Express in non-interactive mode
-      framework = 'express';
+    if (options.yes || options.framework) {
+      // Use provided framework or default to Express
+      const validFrameworks = ['express', 'hono', 'fastify'];
+      if (options.framework && !validFrameworks.includes(options.framework)) {
+        p.log.error(`Invalid framework: ${options.framework}. Use: express, hono, or fastify`);
+        process.exit(1);
+      }
+      framework = (options.framework as Framework) || 'express';
+      const runtime = (options.runtime as 'node' | 'bun') || 'node';
       const spinner = p.spinner();
-      spinner.start('Creating package.json with Express...');
-      await createPackageJson(cwd, path.basename(cwd), framework);
+      spinner.start(`Creating package.json with ${FRAMEWORK_INFO[framework].name} for ${runtime}...`);
+      await createPackageJson(cwd, path.basename(cwd), framework, runtime);
       spinner.stop('Created package.json');
       isNode = true;
     } else {
@@ -82,10 +90,27 @@ export async function init(options: InitOptions) {
 
       framework = selectedFramework as Framework;
 
+      // Ask for runtime
+      const selectedRuntime = await p.select({
+        message: 'Which runtime would you like to use?',
+        initialValue: 'node' as const,
+        options: [
+          { value: 'node', label: 'Node.js - Standard JavaScript runtime' },
+          { value: 'bun', label: 'Bun - Fast all-in-one runtime' },
+        ],
+      });
+
+      if (p.isCancel(selectedRuntime)) {
+        p.outro(chalk.yellow('Initialization cancelled.'));
+        process.exit(0);
+      }
+
+      const runtime = selectedRuntime as 'node' | 'bun';
+
       // Create package.json with framework dependency
       const spinner = p.spinner();
-      spinner.start(`Creating package.json with ${FRAMEWORK_INFO[framework].name}...`);
-      await createPackageJson(cwd, path.basename(cwd), framework);
+      spinner.start(`Creating package.json with ${FRAMEWORK_INFO[framework].name} for ${runtime}...`);
+      await createPackageJson(cwd, path.basename(cwd), framework, runtime);
       spinner.stop('Created package.json');
       isNode = true;
     }
@@ -98,8 +123,13 @@ export async function init(options: InitOptions) {
       p.log.info(`Detected framework: ${chalk.cyan(FRAMEWORK_INFO[framework].name)}`);
     } else {
       // No framework detected, ask user
-      if (options.yes) {
-        framework = 'express';
+      if (options.yes || options.framework) {
+        const validFrameworks = ['express', 'hono', 'fastify'];
+        if (options.framework && !validFrameworks.includes(options.framework)) {
+          p.log.error(`Invalid framework: ${options.framework}. Use: express, hono, or fastify`);
+          process.exit(1);
+        }
+        framework = (options.framework as Framework) || 'express';
       } else {
         const selectedFramework = await p.select({
           message: 'Which framework are you using?',

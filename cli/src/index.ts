@@ -14,6 +14,8 @@ program
   .command('init')
   .description('Initialize Setu in your project')
   .option('-y, --yes', 'Skip prompts and use defaults')
+  .option('-f, --framework <framework>', 'Framework to use (express, hono, fastify)')
+  .option('-r, --runtime <runtime>', 'Runtime to use (node, bun)')
   .action(init);
 
 program
@@ -21,6 +23,8 @@ program
   .description('Add a component to your project')
   .argument('<component>', 'Component to add (auth, logger, database, security)')
   .option('-o, --overwrite', 'Overwrite existing files')
+  .option('-t, --type <type>', 'Database type for database component (postgres, mongodb)')
+  .option('--orm <orm>', 'ORM to use (prisma, drizzle, mongoose)')
   .action(add);
 
 program
