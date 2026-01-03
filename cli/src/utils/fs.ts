@@ -65,3 +65,51 @@ export async function getProjectName(cwd: string): Promise<string | null> {
 export async function hasSrcDirectory(cwd: string): Promise<boolean> {
   return fs.pathExists(path.join(cwd, 'src'));
 }
+
+/**
+ * Create a minimal package.json for a new project with framework dependency
+ */
+export async function createPackageJson(
+  cwd: string, 
+  name: string,
+  framework?: 'express' | 'hono' | 'fastify',
+  runtime: 'node' | 'bun' = 'node'
+): Promise<void> {
+  const frameworkDeps: Record<string, string> = {};
+  
+  if (framework === 'express') {
+    frameworkDeps['express'] = '^4.18.0';
+  } else if (framework === 'hono') {
+    frameworkDeps['hono'] = '^4.0.0';
+  } else if (framework === 'fastify') {
+    frameworkDeps['fastify'] = '^4.0.0';
+  }
+
+  const scripts = runtime === 'bun' 
+    ? {
+        dev: 'bun --hot src/index.ts',
+        start: 'bun src/index.ts',
+      }
+    : {
+        dev: 'ts-node src/index.ts',
+        build: 'tsc',
+        start: 'node dist/index.js',
+      };
+
+  const packageJson = {
+    name: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+    version: '1.0.0',
+    description: '',
+    main: runtime === 'bun' ? 'src/index.ts' : 'index.js',
+    scripts,
+    keywords: [],
+    author: '',
+    license: 'ISC',
+    dependencies: frameworkDeps,
+  };
+
+  await writeFile(
+    path.join(cwd, 'package.json'),
+    JSON.stringify(packageJson, null, 2)
+  );
+}

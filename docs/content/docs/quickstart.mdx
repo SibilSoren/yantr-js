@@ -1,21 +1,21 @@
 ---
 title: Quickstart
-description: Get started with Yantr-js in 3 minutes.
+description: Get started with YantrJS in 3 minutes.
 ---
 
 # Quickstart 🚀
 
-Learn how to go from a blank Express project to a production-ready API with authentication and logging in just a few minutes.
+Get from zero to a production-ready API in minutes. YantrJS supports **Express**, **Hono**, and **Fastify**.
 
 ## 1. Installation
 
-You can run Yantr-js directly using `npx`:
+Run YantrJS directly using `npx`:
 
 ```bash
 npx yantr-js init
 ```
 
-Or install it globally:
+Or install globally:
 
 ```bash
 npm install -g yantr-js
@@ -23,44 +23,58 @@ npm install -g yantr-js
 
 ## 2. Initialize your Project
 
-Run the `init` command in the root of your Express.js project.
+Run the `init` command in your project directory:
 
 ```bash
 yantr init
 ```
 
-Yantr-js will ask you a few questions about your project structure. Once finished, it will create:
-- `yantr.json`: Your project configuration.
-- `src/lib/yantr/error-handler.ts`: A robust global error handler.
-- `src/lib/yantr/zod-middleware.ts`: Middleware for request validation.
+YantrJS will:
+1. **Detect or create** your `package.json`
+2. **Ask which framework** you want (Express, Hono, or Fastify)
+3. **Create** `yantr.json` configuration
+4. **Install** framework-specific base templates
 
-## 3. Add Components
+> **Tip:** YantrJS can start a brand new project! Run `yantr init` in an empty directory and it will create everything for you.
 
-Let's add Authentication and Logging to your project:
+## 3. Add a Database
+
+Set up your database with ORM of choice:
 
 ```bash
-yantr add auth
-yantr add logger
+yantr add database
 ```
 
-This will download the necessary source files into your `src/lib/yantr` folder and install the required dependencies (like `pino`, `jsonwebtoken`, and `bcryptjs`).
+Select from:
+- **PostgreSQL** with Prisma or Drizzle
+- **MongoDB** with Mongoose
 
-## 4. Generate a Route
+## 4. Add Components
 
-Now, let's scaffold a new API resource:
+Add production-ready features:
+
+```bash
+yantr add auth     # JWT authentication
+yantr add logger   # Pino structured logging
+yantr add security # Rate limiting + Helmet headers
+```
+
+## 5. Generate Routes
+
+Scaffold a new API resource:
 
 ```bash
 yantr generate route users
 ```
 
-This creates three files:
-1. `src/routes/users.routes.ts`
-2. `src/controllers/users.controller.ts`
-3. `src/services/users.service.ts`
+Creates:
+- `routes/users.routes.ts`
+- `controllers/users.controller.ts`
+- `services/users.service.ts`
 
-## 5. Wire it up
+## 6. Wire it up
 
-Import your new components into your Express `app.ts` (or `index.ts`):
+### Express
 
 ```typescript
 import express from 'express';
@@ -69,19 +83,38 @@ import { httpLogger } from './lib/yantr/logger/http-logger';
 import usersRoutes from './routes/users.routes';
 
 const app = express();
-
 app.use(express.json());
 app.use(httpLogger);
-
-// Your routes
 app.use('/api/users', usersRoutes);
+app.use(errorHandler); // Must be last
 
-// Global Error Handler (Must be last)
-app.use(errorHandler);
+app.listen(3000);
+```
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
-});
+### Hono
+
+```typescript
+import { Hono } from 'hono';
+import { onError } from './lib/yantr/error-handler';
+import usersRoutes from './routes/users.routes';
+
+const app = new Hono();
+app.onError(onError);
+app.route('/api/users', usersRoutes);
+
+export default app;
+```
+
+### Fastify
+
+```typescript
+import Fastify from 'fastify';
+import { errorHandler } from './lib/yantr/error-handler';
+
+const fastify = Fastify();
+fastify.setErrorHandler(errorHandler);
+
+fastify.listen({ port: 3000 });
 ```
 
 That's it! You now have a production-ready foundation that you fully own. 🪛
