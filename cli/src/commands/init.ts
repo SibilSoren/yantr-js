@@ -71,7 +71,7 @@ export async function init(options: InitOptions) {
         options: [
           { value: 'express', label: 'Express.js - Fast, unopinionated, minimalist' },
           { value: 'hono', label: 'Hono - Ultrafast, lightweight, multi-runtime' },
-          { value: 'fastify', label: 'Fastify - High performance (coming soon)', disabled: true },
+          { value: 'fastify', label: 'Fastify - High performance web framework' },
         ],
       });
 
@@ -107,7 +107,7 @@ export async function init(options: InitOptions) {
           options: [
             { value: 'express', label: 'Express.js' },
             { value: 'hono', label: 'Hono' },
-            { value: 'fastify', label: 'Fastify (coming soon)', disabled: true },
+            { value: 'fastify', label: 'Fastify' },
           ],
         });
 
@@ -218,7 +218,7 @@ export async function init(options: InitOptions) {
   const registryDir = path.resolve(cliDir, '../registry/templates');
   
   // Determine template paths based on framework
-  const frameworkDir = framework === 'hono' ? 'hono' : 'express';
+  const frameworkDir = framework;  // 'express', 'hono', or 'fastify'
   const baseTemplatesDir = path.join(registryDir, frameworkDir, 'base');
   
   try {
@@ -273,6 +273,10 @@ ${chalk.green('✓')} ${templatesDir}/zod-middleware.ts`,
     p.log.step(1, `Add error handler to your Hono app:`);
     console.log(chalk.gray(`   import { onError } from '${templatesDir}/error-handler';`));
     console.log(chalk.gray(`   app.onError(onError);`));
+  } else if (framework === 'fastify') {
+    p.log.step(1, `Add error handler to your Fastify app:`);
+    console.log(chalk.gray(`   import { errorHandler } from '${templatesDir}/error-handler';`));
+    console.log(chalk.gray(`   fastify.setErrorHandler(errorHandler);`));
   } else {
     p.log.step(1, `Add error handler to your Express app:`);
     console.log(chalk.gray(`   import { errorHandler } from '${templatesDir}/error-handler';`));
