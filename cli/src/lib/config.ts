@@ -4,12 +4,18 @@ import path from 'path';
 import type { PackageManager } from './installer.js';
 
 /**
+ * Supported frameworks
+ */
+export type Framework = 'express' | 'hono' | 'fastify';
+
+/**
  * Schema for yantr.json configuration file
  */
 export const SetuConfigSchema = z.object({
   $schema: z.string().optional(),
   projectName: z.string(),
   srcDir: z.string(),
+  framework: z.enum(['express', 'hono', 'fastify']).default('express'),
   packageManager: z.enum(['npm', 'pnpm', 'yarn', 'bun'] as [PackageManager, ...PackageManager[]]),
   installedComponents: z.array(z.string()),
 });
@@ -53,12 +59,14 @@ export async function writeConfig(cwd: string, config: SetuConfig): Promise<void
 export function createConfig(
   projectName: string,
   srcDir: string,
+  framework: Framework,
   packageManager: PackageManager
 ): SetuConfig {
   return {
     $schema: 'https://raw.githubusercontent.com/SibilSoren/yantr-js/main/cli/schema.json',
     projectName,
     srcDir,
+    framework,
     packageManager,
     installedComponents: ['base'],
   };

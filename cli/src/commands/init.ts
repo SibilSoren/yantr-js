@@ -10,7 +10,8 @@ import {
 import { 
   configExists, 
   createConfig, 
-  writeConfig 
+  writeConfig,
+  type Framework
 } from '../lib/config.js';
 import { 
   isNodeProject, 
@@ -20,6 +21,11 @@ import {
   ensureDir,
   createPackageJson
 } from '../utils/fs.js';
+import {
+  detectFramework,
+  FRAMEWORK_INFO,
+  isFrameworkSupported
+} from '../utils/detector.js';
 
 interface InitOptions {
   yes?: boolean;
@@ -31,17 +37,20 @@ export async function init(options: InitOptions) {
 
   const cwd = process.cwd();
 
-  // Step 1: Check if this is a Node.js project
+  // Step 1: Check if this is a Node.js project and detect/select framework
   let isNode = await isNodeProject(cwd);
+  let framework: Framework;
   
   if (!isNode) {
     p.log.warning('No package.json found in current directory.');
     
+    // Ask for framework first when creating new project
     if (options.yes) {
-      // Auto-create in non-interactive mode
+      // Default to Express in non-interactive mode
+      framework = 'express';
       const spinner = p.spinner();
-      spinner.start('Creating package.json...');
-      await createPackageJson(cwd, path.basename(cwd));
+      spinner.start('Creating package.json with Express...');
+      await createPackageJson(cwd, path.basename(cwd), framework);
       spinner.stop('Created package.json');
       isNode = true;
     } else {
@@ -55,12 +64,60 @@ export async function init(options: InitOptions) {
         process.exit(0);
       }
 
-      // Create package.json
+      // Ask which framework to use
+      const selectedFramework = await p.select({
+        message: 'Which framework would you like to use?',
+        initialValue: 'express' as Framework,
+        options: [
+          { value: 'express', label: 'Express.js - Fast, unopinionated, minimalist' },
+          { value: 'hono', label: 'Hono - Ultrafast, lightweight, multi-runtime' },
+          { value: 'fastify', label: 'Fastify - High performance (coming soon)', disabled: true },
+        ],
+      });
+
+      if (p.isCancel(selectedFramework)) {
+        p.outro(chalk.yellow('Initialization cancelled.'));
+        process.exit(0);
+      }
+
+      framework = selectedFramework as Framework;
+
+      // Create package.json with framework dependency
       const spinner = p.spinner();
-      spinner.start('Creating package.json...');
-      await createPackageJson(cwd, path.basename(cwd));
+      spinner.start(`Creating package.json with ${FRAMEWORK_INFO[framework].name}...`);
+      await createPackageJson(cwd, path.basename(cwd), framework);
       spinner.stop('Created package.json');
       isNode = true;
+    }
+  } else {
+    // Detect framework from existing package.json
+    const detected = await detectFramework(cwd);
+    
+    if (detected) {
+      framework = detected;
+      p.log.info(`Detected framework: ${chalk.cyan(FRAMEWORK_INFO[framework].name)}`);
+    } else {
+      // No framework detected, ask user
+      if (options.yes) {
+        framework = 'express';
+      } else {
+        const selectedFramework = await p.select({
+          message: 'Which framework are you using?',
+          initialValue: 'express' as Framework,
+          options: [
+            { value: 'express', label: 'Express.js' },
+            { value: 'hono', label: 'Hono' },
+            { value: 'fastify', label: 'Fastify (coming soon)', disabled: true },
+          ],
+        });
+
+        if (p.isCancel(selectedFramework)) {
+          p.outro(chalk.yellow('Initialization cancelled.'));
+          process.exit(0);
+        }
+
+        framework = selectedFramework as Framework;
+      }
     }
   }
 
@@ -144,7 +201,7 @@ export async function init(options: InitOptions) {
   const spinner = p.spinner();
   spinner.start('Creating configuration...');
 
-  const config = createConfig(projectName, srcDir, packageManager);
+  const config = createConfig(projectName, srcDir, framework, packageManager);
   await writeConfig(cwd, config);
   
   spinner.stop('Created yantr.json');
